@@ -3,7 +3,7 @@
   	<groupId>com.fasilkom.shacl-constraint-checking</groupId>
   	<artifactId>shacl-constraint-checking</artifactId>
   	<version>0.0.1-SNAPSHOT</version>
-  
+
   	<properties>
 		<slf4jVersion>1.7.10</slf4jVersion>
 		<vlog4jVersion>0.5.0</vlog4jVersion>
@@ -16,7 +16,7 @@
 	    <jdk.version>1.8</jdk.version>
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	
+
 	<dependencies>
 		<!-- VLOG4j dependencies. -->
 		<dependency>
@@ -48,14 +48,14 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>${slf4jVersion}</version>
-		</dependency>		
+		</dependency>
 		<!-- Apache Jena dependencies. -->
 		<dependency>
 	    	<groupId>org.apache.jena</groupId>
 	    	<artifactId>apache-jena-libs</artifactId>
 	    	<type>pom</type>
 	    	<version>${jena.version}</version>
-	    </dependency>	
+	    </dependency>
 	    <dependency>
 	      	<groupId>org.apache.jena</groupId>
 	      	<artifactId>jena-text</artifactId>
@@ -66,8 +66,8 @@
 		    <artifactId>jena-shacl</artifactId>
 		    <version>3.16.0</version>
 		</dependency>
-	</dependencies>  
-  
+	</dependencies> 
+
  	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
@@ -92,7 +92,7 @@
 					<cleanupDaemonThreads>false</cleanupDaemonThreads>
 					<!-- set main class, so we won't need to specify
 					     it on the command line. -->
-					<mainClass>src.main.java.Example</mainClass>
+					<mainClass>example.Example</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>
