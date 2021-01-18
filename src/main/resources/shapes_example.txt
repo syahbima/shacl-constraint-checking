@@ -1,0 +1,91 @@
+@prefix dash: <http://datashapes.org/dash#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix ex: <http://example.org/> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#/> .
+
+ex:Shape1
+	a sh:NodeShape ;
+	sh:targetNode ex:Aldo ;
+    sh:class ex:Person;
+    sh:datatype ex:mydatatype;
+    sh:nodeKind sh:BlankNodeOrIRI.
+    
+ex:Shape2
+	a sh:NodeShape ;
+	sh:targetClass ex:Teacher;
+	sh:node ex:Shape1;
+	sh:property ex:PropShape1;
+	sh:not ex:PropShape2.
+
+ex:Shape3
+	a sh:NodeShape ;
+	sh:targetSubjectsOf ex:Teach ;
+	sh:and (
+		ex:Shape1
+		[
+			sh:path ex:property ;
+			sh:maxCount 1 ;
+		]
+	) .
+	
+ex:Shape4
+	sh:targetObjectsOf ex:Teach;
+	sh:or (
+		ex:Shape1
+		[
+			sh:path ex:property ;
+			sh:maxCount 1 ;
+		]
+	) .
+	
+ex:Shape5
+	a sh:NodeShape ;
+	sh:targetNode ex:Aldo ;
+	sh:xone (
+		ex:Shape1
+		[
+			sh:path ex:property ;
+			sh:maxCount 1 ;
+		]
+	) .
+	
+ex:Shape6
+	a sh:NodeShape ;
+	sh:targetNode ex:Aldo .	
+
+
+ex:PropShape1
+	sh:targetNode ex:Alice;
+	a sh:PropertyShape ;
+	sh:path ex:name ;
+	sh:equals ex:alias;
+	sh:class ex:Person.
+	
+ex:PropShape2
+	sh:targetNode ex:Alice;
+	a sh:PropertyShape ;
+	sh:path (ex:name ex:language ex:teach ex:type) ;
+	sh:minCount 1 .
+	
+ex:PropShape3
+	sh:targetNode ex:Alice;
+	a sh:PropertyShape ;
+	sh:path [ sh:inversePath ex:parent ];
+	sh:minCount 4 .
+	
+ex:PropShape4
+	sh:targetNode ex:Alice;
+	a sh:PropertyShape ;
+	sh:path [ sh:inversePath ex:parent ];
+	sh:maxCount 4 .
+	
+ex:PropShape5
+	sh:targetNode ex:Alice;
+	a sh:PropertyShape ;
+	sh:path [ sh:alternativePath ( ex:father ex:mother  ) ] ;
+	sh:maxCount 1 ;
+	sh:class ex:Person.

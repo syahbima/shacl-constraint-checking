@@ -1,0 +1,331 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+dataGraphSatisfiesShapeGraph(ISVALID) :- ~someNodeViolateSomeShape(ISVALID).
+someNodeViolateSomeShape(ISVALID) :- isNode(?node), isShape(?shape), ~nodeSatifiesShape(?node,?shape).
+
+nodeSatifiesShape(?node, ?shape) :- focusNodeOf(?node,?shape), focusNodeSatisfiesShape(?node,?shape).
+nodeSatifiesShape(?node, ?shape) :- isShape(?shape), isNode(?node), ~focusNodeOf(?node,?shape).
+
+focusNodeSatisfiesShape(?focusNode,NODESHAPE) :- valueNodeHoldsAllConstraints(?focusNode,NODESHAPE).
+
+equal(?node,?node) :- isNode(?node).
+
+instanceOf(?node,?class) :- dataGraphHas(?node, rdf:type, ?class) .
+instanceOf(?node,?class) :- dataGraphHas(?node, rdf:type, ?anotherClass), subClassOf(?anotherClass, ?class) .
+subClassOf(?classA,?classB) :- dataGraphHas(?classA, rdfs:subClassOf, ?classB) .
+subClassOf(?classA,?classB) :- dataGraphHas(?classA, rdfs:subClassOf, ?classC), subClassOf(?classC,?classB) .
+
+isNode(?node) :- dataGraphHas(?node,?property,?anotherNode).
+isNode(?node) :- dataGraphHas(?anotherNode,?property,?node).
+subject(?node,?property) :- dataGraphHas(?node,?property,?anotherNode).
+object(?node,?property) :- dataGraphHas(?anotherNode,?property,?node).
+
+someReachableNodeViolateConstraint(?focusNode,?propertyShape) :- pathExpressionOf(?pathExpression,?propertyShape), reachable(?focusNode,?valueNode,?pathExpression), ~valueNodeholdsAllConstraints(?valueNode,?propertyShape).
+
+holdsClassConstraint(?node,?class) :- instanceOf(?node,?class).
+holdsDatatypeConstraint(?node,?datatype) :- hasDatatype(?node,?datatype).
+
+holdsNodeKindConstraint(?node,sh:IRI) :- isIRI(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrIRI) :- isIRI(?node).
+holdsNodeKindConstraint(?node,sh:IRIOrLiteral) :- isIRI(?node).
+holdsNodeKindConstraint(?node,sh:Literal) :- isLiteral(?node).
+holdsNodeKindConstraint(?node,sh:IRIOrLiteral) :- isLiteral(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrLiteral) :- isLiteral(?node).
+holdsNodeKindConstraint(?node,sh:BlankNode) :- isBlankNode(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrIRI) :- isBlankNode(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrLiteral) :- isBlankNode(?node).
+
+holdsNodeConstraint(?node,?nodeShape) :- focusNodeSatisfiesShape(?node,?nodeShape).
+
+holdsPropertyConstraint(?node,?propertyShape) :- focusNodeSatisfiesShape(?node,?propertyShape).
+
+holdsNotConstraint(?node,?shape) : isNode(?node), isShape(?shape), ~focusNodeSatisfiesShape(?node,?shape).
+
+holdsAndConstraint(?node,?shape1,?shape2) : focusNodeSatisfiesShape(?node,?shape1), focusNodeSatisfiesShape(?node,?shape2).
+
+holdsAndConstraint(?node,?shape1,?shape2) : isShape(shape1),focusNodeSatisfiesShape(?node,?shape2).
+holdsAndConstraint(?node,?shape1,?shape2) : isShape(shape2),focusNodeSatisfiesShape(?node,?shape1).
+
+holdsAndConstraint(?node,?shape1,?shape2) : isShape(shape1),~focusNodeSatisfiesShape(?node,?shape1),focusNodeSatisfiesShape(?node,?shape2).
+holdsAndConstraint(?node,?shape1,?shape2) : isShape(shape2),~focusNodeSatisfiesShape(?node,?shape2),focusNodeSatisfiesShape(?node,?shape1).
+
+holdsEqualsConstraint(?node,?pathExpression1,?pathExpression2) :-  isNode(?node), isPathExpression(?pathExpression1), isPathExpression(?pathExpression2), ~anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2).
+anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2) :- isPathExpression(?pathExpression2), reachable(?node,?node2, ?pathExpression1), ~reachable(?node,?node2, ?pathExpression2).
+anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2) :- isPathExpression(?pathExpression1), reachable(?node,?node2, ?pathExpression2), ~reachable(?node,?node2, ?pathExpression1).
+
+holdsDisjointConstraint(?node,?pathExpression1,?pathExpression2) :-  isNode(?node), isPathExpression(?pathExpression1), isPathExpression(?pathExpression2), ~anyDisjointConstraintViolation(?node,?pathExpression1,?pathExpression2).
+anyDisjointConstraintViolation(?node,?pathExpression1,?pathExpression2) :- reachable(?node,?node2, ?pathExpression1), reachable(?node,?node2, ?pathExpression2).
+
+====================================================================================================
+HANDLED CONSRAINT COMPONENT
+====================================================================================================
+Single Value Node Related Constraint:
+- sh:class
+- sh:datatype
+- sh:nodeKind
+- sh:not
+- sh:and
+- sh:or
+- sh:xone
+- sh:node
+- sh:property
+
+Path Related Constraint :
+- sh:minCount
+- sh:maxCount
+- sh:equals
+- sh:disjoint
+
+
+
+====================================================================================================
+FACTS TAGGING
+====================================================================================================
+From shape graph:
+isShape(NODE)
+isPathExpression(PATHEX)
+pathExpressionOf(PATHEX,SHAPE)
+  
+
+from data graph:
+
+hasDatatype(NODE,DATATYPE)
+isLiteral(NODE)
+isBlankNode(NODE)
+isIRI(NODE)
+
+====================================================================================================
+INSTANCE OF RULES (PREDEFINED)
+====================================================================================================
+instanceOf(?node,?class) :- dataGraphHas(?node, rdf:type, ?class) .
+instanceOf(?node,?class) :- dataGraphHas(?node, rdf:type, ?anotherClass), subClassOf(?anotherClass, ?class) .
+subClassOf(?classA,?classB) :- dataGraphHas(?classA, rdfs:subClassOf, ?classB) .
+subClassOf(?classA,?classB) :- dataGraphHas(?classA, rdfs:subClassOf, ?classC), subClassOf(?classC,?classB) .
+
+====================================================================================================
+IS NODE RULES
+====================================================================================================
+isNode(?node) :- dataGraphHas(?node,?property,?anotherNode).
+isNode(?node) :- dataGraphHas(?anotherNode,?property,?node).
+
+====================================================================================================
+EQUAL RULES (PREDEFINED)
+====================================================================================================
+equal(?node,?node) :- isNode(?node).
+
+====================================================================================================
+Target Nodes Rules
+====================================================================================================
+subjectOf(?node,?property) :- dataGraphHas(?node,?property,?anotherNode).
+objectOf(?node,?property) :- dataGraphHas(?anotherNode,?property,?node).
+
+#target nodes
+focusNodeOf(NODE,SHAPE).
+
+#target class
+focusNodeOf(?node,SHAPE) :- instanceOf(?node, CLASS).
+
+#implicits target
+focusNodeOf(?node,SHAPE) :- instanceOf(?node, SHAPE).
+
+#target subjects of
+focusNodeOf(?node,SHAPE) :- subjectOf(?node, PROPERTY).
+
+#target objects of
+focusNodeOf(?node,SHAPE)  :- objectOf(?node, PROPERTY).
+
+
+
+
+
+
+
+
+
+====================================================================================================
+Main Validator (PREDEFINED)
+====================================================================================================
+dataGraphSatisfiesShapeGraph(ISVALID) :- ~someNodeViolateSomeShape(ISVALID).
+someNodeViolateSomeShape(ISVALID) :- isNode(?node), isShape(?shape), ~nodeSatifiesShape(?node,?shape).
+
+====================================================================================================
+Each Shape Validator(PREDEFINED)
+====================================================================================================
+nodeSatifiesShape(?node, ?shape) :- focusNodeOf(?node,?shape), focusNodeSatisfiesShape(?node,?shape).
+nodeSatifiesShape(?node, ?shape) :- isShape(?shape), isNode(?node), ~focusNodeOf(?node,?shape).
+
+====================================================================================================
+Focus Node holds Constraint Rules for Node Shape
+====================================================================================================
+focusNodeSatisfiesShape(?focusNode,NODESHAPE) :- valueNodeHoldsAllConstraints(?focusNode,NODESHAPE).
+                                              
+====================================================================================================
+holds Constraint Rules
+====================================================================================================    
+valueNodeHoldsAllConstraints(?valueNode,NODESHAPE) :- isNode(?valueNode), isShape(NODESHAPE), 
+                                               holdsClassConstraint(?valueNode,IRICLASS), holdsDatatypeConstraint(?valueNode,IRIDATATYPE),  
+                                               holdsNodeKindConstraint(?valueNode,IRINODEKIND), 
+                                               holdsNodeConstraint(?valueNode,IRISHAPE), holdsPropertyConstraint(?valueNode,IRISHAPE),
+                                               holdsNotConstraint(?valueNode,IRISHAPE),  holdsAndConstraint(?valueNode,IRISHAPE1,IRISHAPE2),
+                                               holdsOrConstraint(?valueNode,IRISHAPE1,IRISHAPE2), holdsXoneConstraint(?valueNode,IRISHAPE1,IRISHAPE2).
+                                               
+====================================================================================================
+holds Class Constraint Rules(PREDEFINED)
+====================================================================================================
+holdsClassConstraint(?node,?class) :- instanceOf(?node,?class).
+
+====================================================================================================
+holds Datatype Constraint Rules(PREDEFINED)
+====================================================================================================
+holdsDatatypeConstraint(?node,?datatype) :- hasDatatype(?node,?datatype).
+
+====================================================================================================
+holds Nodekind Constraint Rules(PREDEFINED)
+====================================================================================================
+holdsNodeKindConstraint(?node,sh:IRI) :- isIRI(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrIRI) :- isIRI(?node).
+holdsNodeKindConstraint(?node,sh:IRIOrLiteral) :- isIRI(?node).
+
+holdsNodeKindConstraint(?node,sh:Literal) :- isLiteral(?node).
+holdsNodeKindConstraint(?node,sh:IRIOrLiteral) :- isLiteral(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrLiteral) :- isLiteral(?node).
+
+holdsNodeKindConstraint(?node,sh:BlankNode) :- isBlankNode(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrIRI) :- isBlankNode(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrLiteral) :- isBlankNode(?node).
+
+====================================================================================================
+holds Node Constraint Rules(PREDEFINED)
+====================================================================================================
+holdsNodeConstraint(?node,?nodeShape) :- focusNodeSatisfiesShape(?node,?nodeShape).
+
+====================================================================================================
+holds Property Constraint Rules(PREDEFINED)
+====================================================================================================
+holdsPropertyConstraint(?node,?propertyShape) :- focusNodeSatisfiesShape(?node,?propertyShape).
+
+====================================================================================================
+NOT Constraint Rules(PREDEFINED)
+====================================================================================================
+holdsNotConstraint(?node,?shape) : isNode(?node), isShape(?shape), ~focusNodeSatisfiesShape(?node,?shape).
+
+
+====================================================================================================
+AND constraint (PREDEFINED) katanya dia bisa list gitu 
+====================================================================================================
+holdsAndConstraint(?node,?shape1,?shape2) : focusNodeSatisfiesShape(?node,?shape1), focusNodeSatisfiesShape(?node,?shape2).
+
+====================================================================================================
+OR constraint (PREDEFINED) katanya dia bisa list gitu 
+====================================================================================================
+holdsAndConstraint(?node,?shape1,?shape2) : isShape(shape1),focusNodeSatisfiesShape(?node,?shape2).
+holdsAndConstraint(?node,?shape1,?shape2) : isShape(shape2),focusNodeSatisfiesShape(?node,?shape1).
+
+====================================================================================================
+XONE constraint (PREDEFINED) katanya dia bisa list gitu 
+====================================================================================================
+holdsAndConstraint(?node,?shape1,?shape2) : isShape(shape1),~focusNodeSatisfiesShape(?node,?shape1),focusNodeSatisfiesShape(?node,?shape2).
+holdsAndConstraint(?node,?shape1,?shape2) : isShape(shape2),~focusNodeSatisfiesShape(?node,?shape2),focusNodeSatisfiesShape(?node,?shape1).
+
+====================================================================================================
+Focus Node Holds Constraint Rules for Property Shape
+====================================================================================================
+focusNodeSatisfiesShape(?focusNode,SHAPE) :-   pathExpressionOf(?shapePathExpression,SHAPE), isNode(?focusNode), ~someReachableNodeViolateConstraint(?focusNode,SHAPE),              
+                                               holdsMinCountXConstraint(?focusNode,?shapePathExpression), holdsMaxCountXConstraint(?focusNode,?shapePathExpression),
+                                               holdsEqualConstraint(?focusNode,?shapePathExpression,PATHEX), holdsDisjointConstraint(?focusNode,?shapePathExpression,PATHEX).
+
+====================================================================================================
+Any Reachable Node Violate Constraint Rules (PREDEFINED)
+====================================================================================================
+someReachableNodeViolateConstraint(?focusNode,?propertyShape) :- pathExpressionOf(?pathExpression,?propertyShape), reachable(?focusNode,?valueNode,?pathExpression), ~valueNodeholdsAllConstraints(?valueNode,?propertyShape).
+====================================================================================================
+Reachable Rules
+====================================================================================================
+#predicate path
+reachable(?node,?node2,PATHEX) :- dataGraphHas(?node,PATH,?node2).
+
+#sequence path
+reachable(?node,?node2,PATHEX) :- dataGraphHas(?node,PATH1,?node3), dataGraphHas(?node3, PATH2, ?node2)
+
+#inverse path 
+reachable(?node,?node2,PATHEX) :- dataGraphHas(?node2,PATH,?node).
+
+#alternative path
+reachable(?node,?node2,PATHEX) :- dataGraphHas(?node,PATH1,?node2).
+reachable(?node,?node2,PATHEX) :- dataGraphHas(?node,PATH2,?node2).
+
+====================================================================================================
+Min Count Constraint Rules (coba kalo kasusnya min 1 dan 0)s
+====================================================================================================
+holdsMinCount2Constraint(?node,?pathExpression) :- reachable(?node,?node1,?pathExpression), reachable(?node,?node2,?pathExpression), allDifferent2(?node1,?node2).
+
+====================================================================================================
+Max Count Constraint Rules (coba kalo casenya max 0)
+====================================================================================================
+holdsMaxCount1Constraint(?node,?pathExpression) :- isNode(?node), ~holdsMinCount2Constraint(?node,?pathExpression).
+
+====================================================================================================
+All Different Rules
+====================================================================================================
+allDifferent2(?node1,?node2) :- isNode(?node1), isNode(?node2), ~equal(?node1,?node2).
+allDifferent3(?node1,?node2,?node3) :- allDifferent2(?node1,?node2), isNode(?node3), ~equal(?node1,?node3), ~equal(?node2,?node3).
+allDifferent4(?node1,?node2,?node3,?node4) :- allDifferent3(?node1,?node2,?node3), isNode(?node4), ~equal(?node1,?node4), ~equal(?node2,?node4), ~equal(?node3,?node4).
+
+====================================================================================================
+Equals Constraint Rules (PREDEFINED) --> Oper si shapenya
+====================================================================================================
+holdsEqualsConstraint(?node,?pathExpression1,?pathExpression2) :-  isNode(?node), isPathExpression(?pathExpression1), isPathExpression(?pathExpression2), ~anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2).
+
+anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2) :- isPathExpression(?pathExpression2), reachable(?node,?node2, ?pathExpression1), ~reachable(?node,?node2, ?pathExpression2).
+anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2) :- isPathExpression(?pathExpression1), reachable(?node,?node2, ?pathExpression2), ~reachable(?node,?node2, ?pathExpression1).
+
+====================================================================================================
+Disjoint Constraint Rules (PREDEFINED)
+====================================================================================================
+holdsEqualConstraint(?node,?pathExpression1,?pathExpression2) :-  isNode(?node), isPathExpression(?pathExpression1), isPathExpression(?pathExpression2), ~anyDisjointConstraintViolation(?node,?pathExpression1,?pathExpression2).
+
+
+anyDisjointConstraintViolation(?node,?pathExpression1,?pathExpression2) :- reachable(?node,?node2, ?pathExpression1), reachable(?node,?node2, ?pathExpression2).
+
+====================================================================================================
+
+holdsAndConstraint3(?node,?shape1,?shape2,?shape3) = holdAndConstraint2(?node,?shape1,?shape2), focusNodeSatisfiesShape(?node,?shape3);
+
+holdsOrConstraint3(?node,?shape1,?shape2,?shape3) = isShape(?shape3), holdOrConstraint2(?node,?shape1,?shape2).
+holdsOrConstraint3(?node,?shape1,?shape2,?shape3) = isShape(?shape1),isShape(?shape2),focusNodeSatisfiesShape(?node,?shape3).
+
+holdsXoneConstraint3(?node,?shape1,?shape2,?shape3) = isShape(?shape1),isShape(?shape2), ~holdOrConstraint2(?node,?shape1,?shape2), focusNodeSatisfiesShape(?node,?shape3).
+holdsXoneConstraint3(?node,?shape1,?shape2,?shape3) = isShape(?shape3), holdsXoneConstraint2(?node,?shape1,?shape2), ~focusNodeSatisfiesShape(?node,?shape3).
+
+===================================================================================================
+SKENARIO PERCOBAAN
+
+1.using existential variable
+
+myRules(?node1,!node2) :- isNode(?node1).
+query(?node1,?node2) :- isNode(?node2), myRules(?node2).
+isNode(?node1).
+isNode(?node2).
+
+GAK BERHASIL KALO PANGGIL myRules(?node1,SEMBARANGNODE)
+
+2. Rules gapake parameter gapake kurung juga
+
+GAK BISA
+
+3. GIMANA KALO ADA 2 Shape yang berbeda tapi dia punya URI yang sama
+
+
+
+ 
+
+ 
+
+
+
+
+
+
+
+

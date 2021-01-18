@@ -1,0 +1,4 @@
+myRules(?node1,!node2) :- isNode(?node1).
+query(?node1,?node2) :- isNode(?node1), myRules(?node2,?node3).
+isNode(node1).
+isNode(node2).

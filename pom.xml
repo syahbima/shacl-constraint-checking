@@ -8,7 +8,7 @@
 		<slf4jVersion>1.7.10</slf4jVersion>
 		<vlog4jVersion>0.5.0</vlog4jVersion>
 		<vlog4jGroupId>org.semanticweb.vlog4j</vlog4jGroupId>
-		<jena.version>3.0.0</jena.version>
+		<jena.version>3.16.0</jena.version>
 	    <java-rdfa.version>0.4.2</java-rdfa.version>
 	    <slf4j.version>1.6.4</slf4j.version>
 	    <log4j.version>1.2.16</log4j.version>
@@ -49,23 +49,13 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>${slf4jVersion}</version>
 		</dependency>
-		<!-- Apache Jena dependencies. -->
-		<dependency>
-	    	<groupId>org.apache.jena</groupId>
-	    	<artifactId>apache-jena-libs</artifactId>
-	    	<type>pom</type>
-	    	<version>${jena.version}</version>
-	    </dependency>
-	    <dependency>
-	      	<groupId>org.apache.jena</groupId>
-	      	<artifactId>jena-text</artifactId>
-	      	<version>${jena.version}</version>
-	    </dependency>
+		<!-- Apache Jena dependencies. -->	
 	    <dependency>
 		    <groupId>org.apache.jena</groupId>
 		    <artifactId>jena-shacl</artifactId>
-		    <version>3.16.0</version>
+		    <version>${jena.version}</version>
 		</dependency>
+
 		<dependency>
 		    <groupId>commons-codec</groupId>
 		    <artifactId>commons-codec</artifactId>
@@ -97,7 +87,7 @@
 					<cleanupDaemonThreads>false</cleanupDaemonThreads>
 					<!-- set main class, so we won't need to specify
 					     it on the command line. -->
-					<mainClass>example.Example</mainClass>
+					<!--  <mainClass>example.JenaShaclExample</mainClass> -->
 				</configuration>
 			</plugin>
 		</plugins>

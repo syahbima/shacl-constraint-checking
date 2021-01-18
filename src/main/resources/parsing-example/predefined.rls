@@ -1,0 +1,61 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+
+resultValue(VALID).
+
+dataGraphSatisfiesShapeGraph(?value) :- resultValue(?value), ~someNodeViolateSomeShape(?value).
+someNodeViolateSomeShape(VALID) :- isNode(?node), isShape(?shape), ~nodeSatifiesShape(?node,?shape).
+
+nodeSatifiesShape(?node, ?shape) :- focusNodeOf(?node,?shape), focusNodeSatisfiesShape(?node,?shape).
+nodeSatifiesShape(?node, ?shape) :- isNode(?node), isShape(?shape), ~focusNodeOf(?node,?shape).
+
+equal(?node,?node) :- isNode(?node).
+
+instanceOf(?node,?class) :- dataGraphHas(?node, rdf:type, ?class) .
+instanceOf(?node,?class) :- dataGraphHas(?node, rdf:type, ?anotherClass), subClassOf(?anotherClass, ?class) .
+subClassOf(?classA,?classB) :- dataGraphHas(?classA, rdfs:subClassOf, ?classB) .
+subClassOf(?classA,?classB) :- dataGraphHas(?classA, rdfs:subClassOf, ?classC), subClassOf(?classC,?classB) .
+
+isNode(?node) :- dataGraphHas(?node,?property,?anotherNode).
+isNode(?node) :- dataGraphHas(?anotherNode,?property,?node).
+subject(?node,?property) :- dataGraphHas(?node,?property,?anotherNode).
+object(?node,?property) :- dataGraphHas(?anotherNode,?property,?node).
+
+someReachableNodeViolateConstraint(?focusNode,?propertyShape) :- pathExpressionOf(?pathExpression,?propertyShape), reachable(?focusNode,?valueNode,?pathExpression), ~valueNodeholdsAllConstraints(?valueNode,?propertyShape).
+
+holdsClassConstraint(?node,?class) :- instanceOf(?node,?class).
+
+holdsDatatypeConstraint(?node,?datatype) :- hasDatatype(?node,?datatype).
+
+holdsNodeKindConstraint(?node,sh:IRI) :- isIRI(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrIRI) :- isIRI(?node).
+holdsNodeKindConstraint(?node,sh:IRIOrLiteral) :- isIRI(?node).
+holdsNodeKindConstraint(?node,sh:Literal) :- isLiteral(?node).
+holdsNodeKindConstraint(?node,sh:IRIOrLiteral) :- isLiteral(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrLiteral) :- isLiteral(?node).
+holdsNodeKindConstraint(?node,sh:BlankNode) :- isBlankNode(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrIRI) :- isBlankNode(?node).
+holdsNodeKindConstraint(?node,sh:BlankNodeOrLiteral) :- isBlankNode(?node).
+
+holdsNodeConstraint(?node,?nodeShape) :- focusNodeSatisfiesShape(?node,?nodeShape).
+
+holdsPropertyConstraint(?node,?propertyShape) :- focusNodeSatisfiesShape(?node,?propertyShape).
+
+holdsNotConstraint(?node,?shape) :- isNode(?node), isShape(?shape), ~focusNodeSatisfiesShape(?node,?shape).
+
+holdsAndConstraint(?node,?shape1,?shape2) :- focusNodeSatisfiesShape(?node,?shape1), focusNodeSatisfiesShape(?node,?shape2).
+
+holdsAndConstraint(?node,?shape1,?shape2) :- isShape(?shape1),focusNodeSatisfiesShape(?node,?shape2).
+holdsAndConstraint(?node,?shape1,?shape2) :- isShape(?shape2),focusNodeSatisfiesShape(?node,?shape1).
+
+holdsAndConstraint(?node,?shape1,?shape2) :- isShape(?shape1),~focusNodeSatisfiesShape(?node,?shape1),focusNodeSatisfiesShape(?node,?shape2).
+holdsAndConstraint(?node,?shape1,?shape2) :- isShape(?shape2),~focusNodeSatisfiesShape(?node,?shape2),focusNodeSatisfiesShape(?node,?shape1).
+
+holdsEqualsConstraint(?node,?pathExpression1,?pathExpression2) :-  isNode(?node), isPathExpression(?pathExpression1), isPathExpression(?pathExpression2), ~anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2).
+anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2) :- isPathExpression(?pathExpression2), reachable(?node,?node2, ?pathExpression1), ~reachable(?node,?node2, ?pathExpression2).
+anyEqualsConstraintViolation(?node,?pathExpression1,?pathExpression2) :- isPathExpression(?pathExpression1), reachable(?node,?node2, ?pathExpression2), ~reachable(?node,?node2, ?pathExpression1).
+
+holdsEqualConstraint(?node,?pathExpression1,?pathExpression2) :-  isNode(?node), isPathExpression(?pathExpression1), isPathExpression(?pathExpression2), ~anyDisjointConstraintViolation(?node,?pathExpression1,?pathExpression2).
+anyDisjointConstraintViolation(?node,?pathExpression1,?pathExpression2) :- reachable(?node,?node2, ?pathExpression1), reachable(?node,?node2, ?pathExpression2).

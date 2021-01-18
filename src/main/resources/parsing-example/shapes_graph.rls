@@ -1,0 +1,4 @@
+focusNodeOf(<http://datashapes.org/sh/tests/core/node/class-001.test#Typeless>, <http://datashapes.org/sh/tests/core/node/class-001.test#TestShape>).
+focusNodeSatisfiesShape(?focusNode,<http://datashapes.org/sh/tests/core/node/class-001.test#TestShape>) :- valueNodeHoldsAllConstraints(?focusNode,<http://datashapes.org/sh/tests/core/node/class-001.test#TestShape>).
+isShape(<http://datashapes.org/sh/tests/core/node/class-001.test#TestShape>).
+valueNodeHoldsAllConstraints(?valueNode,<http://datashapes.org/sh/tests/core/node/class-001.test#TestShape>) :- isNode(?valueNode), holdsClassConstraint(?valueNode,<http://datashapes.org/sh/tests/core/node/class-001.test#Person>).

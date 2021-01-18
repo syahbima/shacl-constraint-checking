@@ -1,0 +1,11 @@
+isIRI(<http://datashapes.org/sh/tests/core/node/class-001.test#Animal>).
+isIRI(<http://datashapes.org/sh/tests/core/node/class-001.test#John>).
+isIRI(<http://datashapes.org/sh/tests/core/node/class-001.test#MalePerson>).
+isIRI(<http://datashapes.org/sh/tests/core/node/class-001.test#Person>).
+isIRI(<http://datashapes.org/sh/tests/core/node/class-001.test#Quokki>).
+isIRI(<http://datashapes.org/sh/tests/core/node/class-001.test#Someone>).
+isIRI(<http://datashapes.org/sh/tests/core/node/class-001.test#TestShape>).
+isIRI(<http://datashapes.org/sh/tests/core/node/class-001.test#Typeless>).
+isIRI(<http://www.w3.org/2000/01/rdf-schema#Class>).
+isIRI(<http://www.w3.org/2000/01/rdf-schema#Resource>).
+isIRI(<http://www.w3.org/ns/shacl#NodeShape>).

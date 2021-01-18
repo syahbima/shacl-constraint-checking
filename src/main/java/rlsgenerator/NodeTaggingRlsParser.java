@@ -1,4 +1,4 @@
-package parser;
+package rlsgenerator;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,30 +27,22 @@ import org.semanticweb.vlog4j.core.reasoner.implementation.VLogReasoner;
 import org.semanticweb.vlog4j.parser.ParsingException;
 import org.semanticweb.vlog4j.parser.RuleParser;
 
-public class NodeTaggingParser {
+public class NodeTaggingRlsParser {
 	
 	public static void generateRlsFiles(String shaclFilepath, String rlsFilepath) throws ParsingException, IOException {
 		rlsFilepath = "src/main/resources/" + rlsFilepath;
 		String rulesString = generateRulesString(shaclFilepath);
 		try {
 	      File myObj = new File(rlsFilepath);
-	      if (myObj.createNewFile()) {
-	        System.out.println("File created: " + myObj.getName());
-	      } else {
-	        System.out.println("File already exists.");
-	      }
+	      myObj.createNewFile();
 	    } catch (IOException e) {
-	      System.out.println("An error occurred when creating file " + rlsFilepath);
 	      e.printStackTrace();
-	    }
-		
+	    }		
 		try {
 	      FileWriter myWriter = new FileWriter(rlsFilepath);
 	      myWriter.write(rulesString);
 	      myWriter.close();
-	      System.out.println("Successfully wrote to the file.");
 	    } catch (IOException e) {
-	      System.out.println("An error occurred.");
 	      e.printStackTrace();
 	    }		
 	}
@@ -78,6 +70,8 @@ public class NodeTaggingParser {
 	
 	public static ArrayList<String> extractNodesFromDataGraph(String filepath) throws ParsingException, IOException{
 		ArrayList<String> nodes = new ArrayList<String>();
+		Graph shapesGraph = RDFDataMgr.loadGraph(filepath);
+		writeGraphToNT(shapesGraph, "data/data_graph.nt");
 		final KnowledgeBase kb = RuleParser.parse("node(?node) :- data(?node,?property,?anotherNode).\n" + "node(?node) :- data(?anotherNode,?property,?node).");
 		RuleParser.parseInto(kb, "@source data[3] : load-rdf('src/main/resources/data/data_graph.nt') .");
 		
